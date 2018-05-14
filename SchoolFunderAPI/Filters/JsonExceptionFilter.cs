@@ -12,19 +12,23 @@ namespace SchoolFunderAPI.Filters
     public class JsonExceptionFilter : IExceptionFilter
     {
         private readonly IHostingEnvironment _env;
+        public JsonExceptionFilter(IHostingEnvironment env)
+        {
+            _env = env;
+        }
         
         public void OnException(ExceptionContext context)
         {
             var error = new ApiError();
-            if (_env.IsDevelopment())
+            if (_env.IsProduction())
             {
                 error.Message = context.Exception.Message;
                 error.Detail = context.Exception.StackTrace;
             }
             else
             {
-                error.Message = "There was an error...";
-                error.Detail = context.Exception.Message;
+                error.Message = "There was an error.";
+                error.Detail = "That is all I can tell you.";
             }
             context.Result = new ObjectResult(error)
             {

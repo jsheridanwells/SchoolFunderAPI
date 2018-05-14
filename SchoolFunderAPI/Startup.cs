@@ -13,11 +13,21 @@ using SchoolFunderAPI.Filters;
 
 namespace SchoolFunderAPI
 {
-    public class Startup
+    public class Startup 
     {
-        public Startup(IConfiguration configuration)
+        private readonly int? _httpsPort;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            if (env.IsDevelopment())
+            {
+                var launchJsonConfig = new ConfigurationBuilder()
+                    .SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("Properties\\launchSettings.json")
+                    .Build();
+                _httpsPort = launchJsonConfig.GetValue<int>("iisSettings:iisExpress:sslPort");
+            }
         }
 
         public IConfiguration Configuration { get; }
@@ -25,7 +35,10 @@ namespace SchoolFunderAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(opt => opt.Filters.Add(typeof(JsonExceptionFilter)));
+            services.AddMvc(opt => {
+                opt.Filters.Add(typeof(JsonExceptionFilter));
+                opt.SslPort = _httpsPort;
+            });
 
             services.AddRouting(opt => opt.LowercaseUrls = true);
 
@@ -41,6 +54,11 @@ namespace SchoolFunderAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseHsts(opt => {
+                opt.MaxAge(days: 180);
+                opt.IncludeSubdomains();
+                opt.Preload();
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
