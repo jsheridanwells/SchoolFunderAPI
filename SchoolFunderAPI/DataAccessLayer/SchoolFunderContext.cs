@@ -1,16 +1,15 @@
 ﻿using SchoolFunderAPI.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace SchoolFunderAPI.DataAccessLayer
 {
     public class SchoolFunderContext : DbContext
     {
-        public SchoolFunderContext() : base("SchoolFunderContext") { }
+        public SchoolFunderContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<School> Schools { get; set; }
@@ -18,6 +17,17 @@ namespace SchoolFunderAPI.DataAccessLayer
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentType> PaymentTypes{ get; set; }
         public DbSet<Category> Categories{ get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Project>().ToTable("Projects");
+            modelBuilder.Entity<School>().ToTable("Schools");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Payment>().ToTable("Payments");
+            modelBuilder.Entity<PaymentType>().ToTable("PaymentTypes");
+            modelBuilder.Entity<Category>().ToTable("Categories");
+
+        }
 
     }
 }

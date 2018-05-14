@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SchoolFunderAPI.Filters;
+using Microsoft.EntityFrameworkCore;
+using SchoolFunderAPI.DataAccessLayer;
 
 namespace SchoolFunderAPI
 {
@@ -35,6 +37,9 @@ namespace SchoolFunderAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddDbContext<SchoolFunderContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddMvc(opt => {
                 opt.Filters.Add(typeof(JsonExceptionFilter));
                 opt.SslPort = _httpsPort;
